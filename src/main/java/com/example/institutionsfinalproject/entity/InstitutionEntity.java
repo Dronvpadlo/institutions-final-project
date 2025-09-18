@@ -1,11 +1,17 @@
 package com.example.institutionsfinalproject.entity;
 
 
-import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+import java.util.Map;
+
+@Document(collection = "institutions")
 public class InstitutionEntity {
 
-    private Long id;
+    @Id
+    private String id;
     private String name;
     private String location;
     private String workingHour;
@@ -14,6 +20,9 @@ public class InstitutionEntity {
     private double rating;
     private List<String> photoUrls;
     private List<String> tags;
-
+    private boolean isModerated;
+    private Map<String, Long> statistics;
+    private List<String> newsIds;
+    private List<String> reviewsIds;
 
 }
