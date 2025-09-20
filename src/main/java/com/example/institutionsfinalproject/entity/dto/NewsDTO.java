@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewsDTO {
+    private String id;
     private String title;
     private String description;
     private String date;
