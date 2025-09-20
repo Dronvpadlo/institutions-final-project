@@ -1,6 +1,7 @@
 package com.example.institutionsfinalproject.entity;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Document(collection = "institutions")
