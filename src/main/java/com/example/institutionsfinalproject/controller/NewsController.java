@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/news")
@@ -34,4 +36,27 @@ public class NewsController {
         newsService.deleteNews(id);
         return new ResponseEntity<>("News was deleted successful", HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NewsDTO> getNewsById(@PathVariable String id){
+        return newsService.getNewsById(id)
+                .map(newsDTO -> new ResponseEntity<>(newsDTO, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<NewsDTO> putNews(@PathVariable String id, @RequestBody NewsDTO newsDTO){
+        return newsService.putNews(id,  newsDTO)
+                .map(updatedNews -> new ResponseEntity<>(updatedNews, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<NewsDTO> patchNews(@PathVariable String id, @RequestBody Map<String, Object> updates){
+        return newsService.patchNews(id, updates)
+                .map(updatedNews -> new ResponseEntity<>(updatedNews, HttpStatus.OK))
+                .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.NewsEntity;
+import com.example.institutionsfinalproject.entity.NewsType;
 import com.example.institutionsfinalproject.entity.dto.NewsDTO;
 import com.example.institutionsfinalproject.mapper.NewsMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,4 +54,37 @@ public class NewsService {
     public void deleteNews(String id){
         newsRepository.deleteById(id);
     }
+
+    public Optional<NewsDTO> getNewsById(String id){
+        return newsRepository.findById(id)
+                .map(newsMapper::toDto);
+    }
+
+    public Optional<NewsDTO> putNews(String id, NewsDTO newsDTO){
+        return newsRepository.findById(id)
+                .map(existedNews -> {
+                    NewsEntity updatedNews = newsMapper.toEntity(newsDTO);
+                    updatedNews.setId(existedNews.getId());
+                    newsRepository.save(updatedNews);
+                    return newsMapper.toDto(updatedNews);
+                });
+    }
+
+    public Optional<NewsDTO> patchNews(String id, Map<String, Object> updates){
+        return newsRepository.findById(id)
+                .map(news -> {
+                   updates.forEach((key, value) ->{
+                       switch (key){
+                           case "title": news.setTitle((String) value); break;
+                           case "date": news.setDate((String) value); break;
+                           case "description": news.setDescription((String) value); break;
+                           case "institutionId": news.setInstitutionId((String) value); break;
+                           case "type": news.setType((NewsType) value); break;
+                       }
+                   });
+                   NewsEntity updatedNews = newsRepository.save(news);
+                   return newsMapper.toDto(updatedNews);
+                });
+    }
+
 }
