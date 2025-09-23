@@ -44,6 +44,17 @@ public class NewsService {
         return newsMapper.toDto(savedNews);
     }
 
+    private void removeNewsFromRelatedEntities(String newsId, String institutionId){
+        institutionRepository.findById(institutionId).ifPresent(institution -> {
+            List<String> newsIds = institution.getNewsIds();
+            if (newsIds != null){
+                newsIds.remove(newsId);
+                institution.setNewsIds(newsIds);
+                institutionRepository.save(institution);
+            }
+        });
+    }
+
     public List<NewsDTO> getAllNews(){
         List<NewsEntity> news = newsRepository.findAll();
         return news.stream()
@@ -52,7 +63,10 @@ public class NewsService {
     }
 
     public void deleteNews(String id){
-        newsRepository.deleteById(id);
+        newsRepository.findById(id).ifPresent(news -> {
+            removeNewsFromRelatedEntities(news.getId(), news.getInstitutionId());
+            newsRepository.deleteById(id);
+        });
     }
 
     public Optional<NewsDTO> getNewsById(String id){

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/review")
@@ -25,14 +26,37 @@ public class ReviewController {
     }
 
     @PostMapping
-    private ResponseEntity<ReviewDTO> postReview(@RequestBody ReviewDTO reviewDTO){
+    public ResponseEntity<ReviewDTO> postReview(@RequestBody ReviewDTO reviewDTO){
         ReviewDTO newReview = reviewService.createReview(reviewDTO);
         return new ResponseEntity<>(newReview, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<String> deleteReview(@PathVariable String id){
+    public ResponseEntity<String> deleteReview(@PathVariable String id){
         reviewService.deleteReview(id);
         return new ResponseEntity<>("Review was deleted", HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable String id){
+        return reviewService.getReviewById(id)
+                .map(reviewDTO -> new ResponseEntity<>(reviewDTO, HttpStatus.OK))
+                .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewDTO> putReview(@PathVariable String id, @RequestBody ReviewDTO reviewDTO){
+        return reviewService.updateReview(id, reviewDTO)
+                .map(updatesReview -> new ResponseEntity<>(updatesReview, HttpStatus.OK))
+                .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ReviewDTO> patchReview(@PathVariable String id, @RequestBody Map<String, Object> updates){
+        return reviewService.patchReview(id, updates)
+                .map(updatesReview -> new ResponseEntity<>(updatesReview, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+    }
+
 }

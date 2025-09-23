@@ -104,8 +104,9 @@ public class ReviewService {
                 .map(existedReview -> {
                     ReviewEntity updatedReview = reviewMapper.toEntity(reviewDTO);
                     updatedReview.setId(existedReview.getId());
+
                     reviewRepository.save(updatedReview);
-                    updatedRelatedEntities(id, reviewDTO.getInstitutionId(), reviewDTO.getCustomerId());
+
                     return reviewMapper.toDto(updatedReview);
                 });
     }
@@ -116,10 +117,18 @@ public class ReviewService {
                     updates.forEach((key, value) ->{
                         switch (key){
                             case "description": review.setDescription((String) value); break;
-                            case "rating": review.setRating((int) value); break;
+                            case "rating":
+                                if (value instanceof Number) {
+                                    review.setRating((int) value);
+                                    break;
+                                }
                             case "customerId": review.setCustomerId((String) value); break;
                             case "institutionId": review.setInstitutionId((String) value); break;
-                            case "checkAmount": review.setCheckAmount((double) value); break;
+                            case "checkAmount":
+                                if (value instanceof Number) {
+                                    review.setCheckAmount((double) value);
+                                    break;
+                                }
                         }
                     });
                     ReviewEntity updatedReview = reviewRepository.save(review);
