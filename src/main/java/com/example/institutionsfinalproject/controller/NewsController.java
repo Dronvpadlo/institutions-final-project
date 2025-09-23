@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/news")
@@ -32,9 +31,9 @@ public class NewsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteNews(@PathVariable String id){
+    public ResponseEntity<Void> deleteNews(@PathVariable String id){
         newsService.deleteNews(id);
-        return new ResponseEntity<>("News was deleted successful", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{id}")

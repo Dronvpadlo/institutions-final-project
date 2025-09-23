@@ -39,20 +39,20 @@ public class InstitutionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteInstitutionById(@PathVariable String id){
+    public ResponseEntity<Void> deleteInstitution(@PathVariable String id){
         institutionService.deleteInstitutionById(id);
-        return new ResponseEntity<>("Institution was deleted successful", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InstitutionDTO> putInstitutionById(@PathVariable String id, @RequestBody InstitutionDTO institutionDTO){
+    public ResponseEntity<InstitutionDTO> putInstitution(@PathVariable String id, @RequestBody InstitutionDTO institutionDTO){
         return institutionService.updateInstitution(id, institutionDTO)
                 .map(updatedInstitution -> new ResponseEntity<>(updatedInstitution, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<InstitutionDTO> patchInstitutionById(@PathVariable String id, @RequestBody Map<String, Object> updates){
+    public ResponseEntity<InstitutionDTO> patchInstitution(@PathVariable String id, @RequestBody Map<String, Object> updates){
         return institutionService.patchInstitution(id, updates)
                 .map(updatesInstitution -> new ResponseEntity<>(updatesInstitution, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));

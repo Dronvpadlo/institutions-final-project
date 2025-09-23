@@ -4,6 +4,8 @@ import com.example.institutionsfinalproject.entity.InstitutionEntity;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.mapper.InstitutionMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
+import com.example.institutionsfinalproject.repository.NewsRepository;
+import com.example.institutionsfinalproject.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -17,10 +19,15 @@ public class InstitutionService {
 
     private final InstitutionRepository institutionRepository;
     private final InstitutionMapper institutionMapper;
+    private final NewsRepository newsRepository;
+    private final ReviewRepository reviewRepository;
 
-    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper){
+
+    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository){
         this.institutionRepository = institutionRepository;
         this.institutionMapper = institutionMapper;
+        this.newsRepository = newsRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
@@ -43,16 +50,35 @@ public class InstitutionService {
     }
 
     public void  deleteInstitutionById(String id){
-        institutionRepository.deleteById(id);
+        institutionRepository.findById(id).ifPresent(institution -> {
+            List<String> newsIds = institution.getNewsIds();
+            List<String> reviewIds = institution.getReviewsIds();
+            if (newsIds != null && !newsIds.isEmpty()){
+                newsRepository.deleteAllById(newsIds);
+            }
+            if (reviewIds != null && !reviewIds.isEmpty()){
+                reviewRepository.deleteAllById(reviewIds);
+            }
+            institutionRepository.deleteById(id);
+        });
     }
 
     public Optional<InstitutionDTO> updateInstitution(String id, InstitutionDTO institutionDTO){
         return institutionRepository.findById(id)
-                .map(existingInstitution -> {
-                    InstitutionEntity updatedEntity = institutionMapper.toEntity(institutionDTO);
-                    updatedEntity.setId(existingInstitution.getId());
-                    institutionRepository.save(updatedEntity);
-                    return institutionMapper.toDto(updatedEntity);
+                .map(existedInstitution -> {
+                    existedInstitution.setNewsIds(institutionDTO.getNewsIds());
+                    existedInstitution.setLocation(institutionDTO.getLocation());
+                    existedInstitution.setContacts(institutionDTO.getContacts());
+                    existedInstitution.setRating(institutionDTO.getRating());
+                    existedInstitution.setName(institutionDTO.getName());
+                    existedInstitution.setAverageCheck(institutionDTO.getAverageCheck());
+                    existedInstitution.setPhotoUrls(institutionDTO.getPhotoUrls());
+                    existedInstitution.setReviewsIds(institutionDTO.getReviewsIds());
+                    existedInstitution.setTags(institutionDTO.getTags());
+                    existedInstitution.setOpenAt(LocalTime.parse(institutionDTO.getOpenAt()));
+                    existedInstitution.setCloseAt(LocalTime.parse(institutionDTO.getCloseAt()));
+                    institutionRepository.save(existedInstitution);
+                    return institutionMapper.toDto(existedInstitution);
                 });
     }
 
@@ -64,14 +90,33 @@ public class InstitutionService {
                             case "name": institution.setName((String) value); break;
                             case "location": institution.setLocation((String) value); break;
                             case "contacts": institution.setContacts((String) value); break;
-                            case "averageCheck": institution.setAverageCheck((double) value); break;
-                            case "rating": institution.setRating((double) value); break;
-                            case "openAt": institution.setOpenAt(LocalTime.parse((String) value));break;
-                            case "closeAt": institution.setCloseAt(LocalTime.parse((String) value));break;
-                        }
+                            case "averageCheck":
+                                if (value instanceof Number) {
+                                    institution.setAverageCheck((double) value);
+                                    break;
+                                }
+                            case "rating":
+                                if (value instanceof Number) {
+                                    institution.setRating((double) value);
+                                    break;
+                                }
+                            case "openAt":
+                                try{
+                                    institution.setOpenAt(LocalTime.parse((String) value));break;
+                                } catch (Exception e){
+                                    throw new IllegalArgumentException("Invalid Local Time value: " + value);
+                                }
+
+                            case "closeAt":
+                                try{
+                                institution.setCloseAt(LocalTime.parse((String) value));break;
+                                } catch (Exception e){
+                                    throw new IllegalArgumentException("Invalid Local Time value: " + value);
+                                }
+                            }
                     });
                     InstitutionEntity updatedInstitution = institutionRepository.save(institution);
-                    return institutionMapper.toDto(updatedInstitution);
-                });
+                return institutionMapper.toDto(updatedInstitution);
+        });
     }
 }

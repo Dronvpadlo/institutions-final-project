@@ -42,12 +42,12 @@ public class ReviewService {
         });
 
         userRepository.findById(customerId).ifPresent(user -> {
-            List<String> reviewsIds = user.getMyCommentsIds();
-            if (reviewsIds == null){
-                reviewsIds = new ArrayList<>();
+            List<String> myCommentsIds = user.getMyCommentsIds();
+            if (myCommentsIds == null){
+                myCommentsIds = new ArrayList<>();
             }
-            reviewsIds.add(reviewId);
-            user.setMyCommentsIds(reviewsIds);
+            myCommentsIds.add(reviewId);
+            user.setMyCommentsIds(myCommentsIds);
             userRepository.save(user);
         });
     }
@@ -118,17 +118,21 @@ public class ReviewService {
                         switch (key){
                             case "description": review.setDescription((String) value); break;
                             case "rating":
-                                if (value instanceof Number) {
-                                    review.setRating((int) value);
-                                    break;
+                                try {
+                                    review.setRating(Integer.parseInt(value.toString()));
+                                } catch (NumberFormatException e) {
+                                    throw new IllegalArgumentException("Invalid value for 'rating': " + value);
                                 }
+                                break;
                             case "customerId": review.setCustomerId((String) value); break;
                             case "institutionId": review.setInstitutionId((String) value); break;
                             case "checkAmount":
-                                if (value instanceof Number) {
-                                    review.setCheckAmount((double) value);
-                                    break;
+                                try {
+                                    review.setCheckAmount(Double.parseDouble(value.toString()));
+                                } catch (NumberFormatException e) {
+                                    throw new IllegalArgumentException("Invalid value for 'checkAmount': " + value);
                                 }
+                                break;
                         }
                     });
                     ReviewEntity updatedReview = reviewRepository.save(review);

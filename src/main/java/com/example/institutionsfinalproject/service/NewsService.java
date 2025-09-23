@@ -77,10 +77,13 @@ public class NewsService {
     public Optional<NewsDTO> putNews(String id, NewsDTO newsDTO){
         return newsRepository.findById(id)
                 .map(existedNews -> {
-                    NewsEntity updatedNews = newsMapper.toEntity(newsDTO);
-                    updatedNews.setId(existedNews.getId());
-                    newsRepository.save(updatedNews);
-                    return newsMapper.toDto(updatedNews);
+                    existedNews.setType(newsDTO.getType());
+                    existedNews.setDate(newsDTO.getDate());
+                    existedNews.setInstitutionId(newsDTO.getInstitutionId());
+                    existedNews.setDescription(newsDTO.getDescription());
+                    existedNews.setTitle(newsDTO.getTitle());
+                    newsRepository.save(existedNews);
+                    return newsMapper.toDto(existedNews);
                 });
     }
 
@@ -93,7 +96,12 @@ public class NewsService {
                            case "date": news.setDate((String) value); break;
                            case "description": news.setDescription((String) value); break;
                            case "institutionId": news.setInstitutionId((String) value); break;
-                           case "type": news.setType((NewsType) value); break;
+                           case "type":
+                               try {
+                                   news.setType(NewsType.valueOf((String) value));
+                               } catch (Exception e) {
+                                   throw new IllegalArgumentException("Invalid NewsType value: " + value);
+                               }
                        }
                    });
                    NewsEntity updatedNews = newsRepository.save(news);

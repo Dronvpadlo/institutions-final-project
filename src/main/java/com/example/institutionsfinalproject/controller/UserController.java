@@ -34,9 +34,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable String id){
+    public ResponseEntity<Void> deleteUser(@PathVariable String id){
         userService.deleteUser(id);
-        return new ResponseEntity<>("user was deleted successful", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{id}")
@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDTO> patchUserById(@PathVariable String id, @RequestBody Map<String, Object> updates){
+    public ResponseEntity<UserDTO> patchUser(@PathVariable String id, @RequestBody Map<String, Object> updates){
         return userService.patchUser(id, updates)
                 .map(userDTO -> new ResponseEntity<>(userDTO, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
