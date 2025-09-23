@@ -5,9 +5,11 @@ import com.example.institutionsfinalproject.entity.UserEntity;
 import com.example.institutionsfinalproject.entity.dto.UserDTO;
 import com.example.institutionsfinalproject.entity.dto.UserRegistrationDTO;
 import com.example.institutionsfinalproject.mapper.UserMapper;
+import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,12 +19,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
+    private final InstitutionRepository institutionRepository;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper){
+    public UserService(UserRepository userRepository, UserMapper userMapper, InstitutionRepository institutionRepository){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.institutionRepository = institutionRepository;
     }
 
     public UserDTO createUser(UserRegistrationDTO userRegistrationDTO){
@@ -99,5 +102,43 @@ public class UserService {
                     userRepository.save(user);
                     return userMapper.toDto(user);
                 });
+    }
+
+    public Optional<UserDTO> setFavoriteInstitution(String userId, String institutionId){
+    return userRepository.findById(userId)
+                .map(user ->{
+                    institutionRepository.findById(institutionId).ifPresent(institution -> {
+                        List<String> userFavoriteInstitutionIds = user.getFavoriteInstitutionsIds();
+                        if (userFavoriteInstitutionIds == null){
+                            userFavoriteInstitutionIds = new ArrayList<>();
+                        }
+                        if (!userFavoriteInstitutionIds.contains(institutionId)){
+                            userFavoriteInstitutionIds.add(institution.getId());
+                            user.setFavoriteInstitutionsIds(userFavoriteInstitutionIds);
+                            userRepository.save(user);
+                        }
+                    });
+                return userMapper.toDto(user);
+                });
+
+    }
+
+    public Optional<UserDTO> removeFavoriteInstitution(String userId, String institutionId){
+        return userRepository.findById(userId)
+                .map(user ->{
+                    institutionRepository.findById(institutionId).ifPresent(institution -> {
+                        List<String> userFavoriteInstitutionIds = user.getFavoriteInstitutionsIds();
+                        if (userFavoriteInstitutionIds == null){
+                            userFavoriteInstitutionIds = new ArrayList<>();
+                        }
+                        if (!userFavoriteInstitutionIds.contains(institutionId)){
+                            userFavoriteInstitutionIds.remove(institution.getId());
+                            user.setFavoriteInstitutionsIds(userFavoriteInstitutionIds);
+                            userRepository.save(user);
+                        }
+                    });
+                    return userMapper.toDto(user);
+                });
+
     }
 }

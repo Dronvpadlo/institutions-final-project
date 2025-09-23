@@ -73,4 +73,12 @@ public class UserController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @PostMapping("/{userId}/favorites")
+    public ResponseEntity<UserDTO> addFavoriteInstitution(@PathVariable String userId, @RequestBody Map<String, String> requestBody){
+        String institutionId = requestBody.get("institutionId");
+
+        return userService.setFavoriteInstitution(userId, institutionId)
+                .map(userDTO -> new ResponseEntity<>(userDTO, HttpStatus.OK))
+                .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }
