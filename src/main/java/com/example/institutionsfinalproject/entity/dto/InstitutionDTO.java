@@ -1,5 +1,6 @@
 package com.example.institutionsfinalproject.entity.dto;
 
+import com.example.institutionsfinalproject.entity.Specifications;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class InstitutionDTO {
     private String openAt;
     private String closeAt;
     private String contacts;
+    private String createdAt;
     private double averageCheck;
     private double rating;
     private List<String> photoUrls;
@@ -23,4 +25,5 @@ public class InstitutionDTO {
     private Map<String, Long> statistics;
     private List<String> newsIds;
     private List<String> reviewsIds;
+    private Specifications specifications;
 }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class InstitutionService {
 
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
         InstitutionEntity institutionEntity = institutionMapper.toEntity(institutionDTO);
+        institutionEntity.setCreatedAt(Instant.now());
         InstitutionEntity savedInstitution = institutionRepository.save(institutionEntity);
         return institutionMapper.toDto(savedInstitution);
     }

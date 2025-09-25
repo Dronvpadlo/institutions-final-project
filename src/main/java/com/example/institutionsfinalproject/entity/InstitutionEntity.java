@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class InstitutionEntity {
     private LocalTime closeAt;
     private String contacts;
     private double averageCheck;
+    private Instant createdAt;
     private double rating;
     private List<String> photoUrls;
     private List<String> tags;
@@ -33,4 +35,5 @@ public class InstitutionEntity {
     private Map<String, Long> statistics;
     private List<String> newsIds;
     private List<String> reviewsIds;
+    private Specifications specifications;
 }
