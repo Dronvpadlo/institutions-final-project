@@ -3,9 +3,13 @@ package com.example.institutionsfinalproject.service;
 import com.example.institutionsfinalproject.entity.NewsEntity;
 import com.example.institutionsfinalproject.entity.NewsType;
 import com.example.institutionsfinalproject.entity.dto.NewsDTO;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.mapper.NewsMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.NewsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,11 +59,15 @@ public class NewsService {
         });
     }
 
-    public List<NewsDTO> getAllNews(){
-        List<NewsEntity> news = newsRepository.findAll();
-        return news.stream()
+    public ResponseDTO<NewsDTO> getAllNews(int skip, int limit){
+        Pageable pageable = PageRequest.of(skip/limit, limit);
+        Page<NewsEntity> newsPage = newsRepository.findAll(pageable);
+
+        List<NewsDTO> news = newsPage.getContent()
+                .stream()
                 .map(newsMapper::toDto)
                 .collect(Collectors.toList());
+        return new ResponseDTO<>(news, newsPage.getTotalElements(), skip, limit);
     }
 
     public void deleteNews(String id){

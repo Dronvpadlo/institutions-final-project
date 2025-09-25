@@ -1,12 +1,12 @@
 package com.example.institutionsfinalproject.controller;
 
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.InstitutionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,8 +26,8 @@ public class InstitutionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<InstitutionDTO>> getAllInstitution(){
-        List<InstitutionDTO> institutions = institutionService.getAllInstitutions();
+    public ResponseEntity<ResponseDTO<InstitutionDTO>> getAllInstitution(@RequestParam(defaultValue = "0")int skip, @RequestParam(defaultValue = "10") int limit){
+        ResponseDTO<InstitutionDTO> institutions = institutionService.getAllInstitutions(skip, limit);
         return new ResponseEntity<>(institutions, HttpStatus.OK);
     }
 

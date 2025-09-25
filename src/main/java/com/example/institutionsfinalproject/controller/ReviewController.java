@@ -1,12 +1,12 @@
 package com.example.institutionsfinalproject.controller;
 
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.entity.dto.ReviewDTO;
 import com.example.institutionsfinalproject.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,8 +20,8 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewDTO>> getReviews(){
-        List<ReviewDTO> reviews = reviewService.getAllReviews();
+    public ResponseEntity<ResponseDTO<ReviewDTO>> getReviews(@RequestParam(defaultValue = "0") int skip, @RequestParam(defaultValue = "10") int limit){
+        ResponseDTO<ReviewDTO> reviews = reviewService.getAllReviews(skip, limit);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 

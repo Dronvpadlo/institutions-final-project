@@ -1,11 +1,15 @@
 package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.ReviewEntity;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.entity.dto.ReviewDTO;
 import com.example.institutionsfinalproject.mapper.ReviewMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.ReviewRepository;
 import com.example.institutionsfinalproject.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -80,11 +84,14 @@ public class ReviewService {
         return reviewMapper.toDto(savedReview);
     }
 
-    public List<ReviewDTO> getAllReviews(){
-        List<ReviewEntity> reviews = reviewRepository.findAll();
-        return reviews.stream()
-                .map(reviewMapper::toDto)
+    public ResponseDTO<ReviewDTO> getAllReviews(int skip, int limit){
+        Pageable pageable = PageRequest.of(skip/limit, limit);
+        Page<ReviewEntity> reviewPage = reviewRepository.findAll(pageable);
+
+        List<ReviewDTO> reviews = reviewPage.getContent()
+                .stream().map(reviewMapper::toDto)
                 .collect(Collectors.toList());
+        return new ResponseDTO<>(reviews, reviewPage.getTotalElements(), skip, limit);
     }
 
     public Optional<ReviewDTO> getReviewById(String id){

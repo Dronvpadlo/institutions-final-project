@@ -2,11 +2,15 @@ package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.Role;
 import com.example.institutionsfinalproject.entity.UserEntity;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.entity.dto.UserDTO;
 import com.example.institutionsfinalproject.entity.dto.UserRegistrationDTO;
 import com.example.institutionsfinalproject.mapper.UserMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,11 +39,15 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
-    public List<UserDTO> getAllUsers(){
-        List<UserEntity> users = userRepository.findAll();
-        return users.stream()
+    public ResponseDTO<UserDTO> getAllUsers(int skip, int limit){
+        Pageable pageable = PageRequest.of(skip/limit, limit);
+        Page<UserEntity> userPage = userRepository.findAll(pageable);
+
+        List<UserDTO> users = userPage.getContent()
+                .stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
+        return new ResponseDTO<>(users, userPage.getTotalElements(), skip, limit);
     }
 
     public void deleteUser(String id){
@@ -126,17 +134,15 @@ public class UserService {
     public Optional<UserDTO> removeFavoriteInstitution(String userId, String institutionId){
         return userRepository.findById(userId)
                 .map(user ->{
-                    institutionRepository.findById(institutionId).ifPresent(institution -> {
+                    if (institutionRepository.existsById(institutionId)) {
                         List<String> userFavoriteInstitutionIds = user.getFavoriteInstitutionsIds();
-                        if (userFavoriteInstitutionIds == null){
-                            userFavoriteInstitutionIds = new ArrayList<>();
-                        }
-                        if (!userFavoriteInstitutionIds.contains(institutionId)){
-                            userFavoriteInstitutionIds.remove(institution.getId());
+
+                        if (userFavoriteInstitutionIds != null){
+                            userFavoriteInstitutionIds.remove(institutionId);
                             user.setFavoriteInstitutionsIds(userFavoriteInstitutionIds);
                             userRepository.save(user);
                         }
-                    });
+                    }
                     return userMapper.toDto(user);
                 });
 

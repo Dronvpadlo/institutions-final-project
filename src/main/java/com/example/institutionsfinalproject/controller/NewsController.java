@@ -1,12 +1,12 @@
 package com.example.institutionsfinalproject.controller;
 
 import com.example.institutionsfinalproject.entity.dto.NewsDTO;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.NewsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,8 +25,8 @@ public class NewsController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<NewsDTO>> getAllNews(){
-        List<NewsDTO> newsDTO = newsService.getAllNews();
+    public ResponseEntity<ResponseDTO<NewsDTO>> getAllNews(@RequestParam(defaultValue = "0") int skip, @RequestParam(defaultValue = "10") int limit){
+        ResponseDTO<NewsDTO> newsDTO = newsService.getAllNews(skip, limit);
         return new ResponseEntity<>(newsDTO, HttpStatus.OK);
     }
 

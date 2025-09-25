@@ -2,10 +2,14 @@ package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.InstitutionEntity;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
+import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.mapper.InstitutionMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.NewsRepository;
 import com.example.institutionsfinalproject.repository.ReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -42,11 +46,15 @@ public class InstitutionService {
     }
 
 
-    public List<InstitutionDTO> getAllInstitutions(){
-        List<InstitutionEntity> institutions = institutionRepository.findAll();
-        return institutions.stream()
+    public ResponseDTO<InstitutionDTO> getAllInstitutions(int skip, int limit){
+        Pageable pageable = PageRequest.of(skip / limit, limit);
+        Page<InstitutionEntity> institutionsPage = institutionRepository.findAll(pageable);
+
+        List<InstitutionDTO> institutions = institutionsPage.getContent()
+                .stream()
                 .map(institutionMapper::toDto)
                 .collect(Collectors.toList());
+        return new ResponseDTO<>(institutions, institutionsPage.getTotalElements(), skip, limit);
     }
 
     public void  deleteInstitutionById(String id){
