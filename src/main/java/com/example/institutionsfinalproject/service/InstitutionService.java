@@ -83,6 +83,17 @@ public class InstitutionService {
         return new ResponseDTO<>(institutions, institutionsPage.getTotalElements(), skip, limit);
     }
 
+    public ResponseDTO<InstitutionDTO> getInstitutionsByName(String name, int skip, int limit){
+        Pageable pageable = PageRequest.of(skip/limit, limit);
+        Page<InstitutionEntity> institutionsPage = institutionRepository.findByNameContainingIgnoreCase(name, pageable);
+
+        List<InstitutionDTO> institution = institutionsPage.getContent()
+                .stream()
+                .map(institutionMapper::toDto)
+                .collect(Collectors.toList());
+        return new ResponseDTO<>(institution, institutionsPage.getTotalElements(), skip, limit);
+    }
+
     public void  deleteInstitutionById(String id){
         institutionRepository.findById(id).ifPresent(institution -> {
             List<String> newsIds = institution.getNewsIds();
@@ -147,4 +158,5 @@ public class InstitutionService {
                 return institutionMapper.toDto(updatedInstitution);
         });
     }
+
 }

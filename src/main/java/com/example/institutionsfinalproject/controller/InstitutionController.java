@@ -31,6 +31,12 @@ public class InstitutionController {
         return new ResponseEntity<>(institutions, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDTO<InstitutionDTO>> searchInstitutions(@RequestParam String name, @RequestParam(defaultValue = "0")int skip, @RequestParam(defaultValue = "10") int limit){
+        ResponseDTO<InstitutionDTO> institutions = institutionService.getInstitutionsByName(name, skip, limit);
+        return new ResponseEntity<>(institutions, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<InstitutionDTO> getInstitutionById(@PathVariable String id){
         return institutionService.getInstitutionById(id)

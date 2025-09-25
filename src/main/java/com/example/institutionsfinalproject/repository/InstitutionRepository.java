@@ -9,4 +9,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface InstitutionRepository extends MongoRepository<InstitutionEntity, String> {
     @NonNull
     Page<InstitutionEntity> findAll(@NonNull Pageable pageable);
+
+    Page<InstitutionEntity> findByNameContainingIgnoreCase(String name, @NonNull Pageable pageable);
 }
