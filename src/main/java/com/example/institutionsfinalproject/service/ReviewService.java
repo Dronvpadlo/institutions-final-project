@@ -25,13 +25,14 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final InstitutionRepository institutionRepository;
     private final UserRepository userRepository;
+    private final InstitutionService institutionService;
 
-
-    public ReviewService(ReviewRepository reviewRepository, ReviewMapper reviewMapper, InstitutionRepository institutionRepository, UserRepository userRepository){
+    public ReviewService(ReviewRepository reviewRepository, ReviewMapper reviewMapper, InstitutionRepository institutionRepository, UserRepository userRepository, InstitutionService institutionService){
         this.reviewMapper = reviewMapper;
         this.reviewRepository = reviewRepository;
         this.institutionRepository = institutionRepository;
         this.userRepository = userRepository;
+        this.institutionService = institutionService;
     }
 
     private void updatedRelatedEntities(String reviewId, String institutionId, String customerId){
@@ -81,6 +82,8 @@ public class ReviewService {
         ReviewEntity savedReview = reviewRepository.save(reviewEntity);
         updatedRelatedEntities(savedReview.getId(), reviewDTO.getInstitutionId(), reviewDTO.getCustomerId());
 
+        institutionService.calculateAndSetRating(reviewDTO.getInstitutionId());
+
         return reviewMapper.toDto(savedReview);
     }
 
@@ -103,6 +106,7 @@ public class ReviewService {
         reviewRepository.findById(id).ifPresent(review -> {
             removeReviewFromRelatedEntities(review.getId(), review.getInstitutionId(), review.getCustomerId());
             reviewRepository.deleteById(id);
+            institutionService.calculateAndSetRating(review.getInstitutionId());
         });
     }
 

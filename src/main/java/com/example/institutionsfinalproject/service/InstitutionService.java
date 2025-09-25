@@ -1,6 +1,7 @@
 package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.InstitutionEntity;
+import com.example.institutionsfinalproject.entity.ReviewEntity;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.mapper.InstitutionMapper;
@@ -27,6 +28,28 @@ public class InstitutionService {
     private final NewsRepository newsRepository;
     private final ReviewRepository reviewRepository;
 
+    public void calculateAndSetRating(String institutionId){
+        reviewRepository.findByInstitutionId(institutionId).ifPresent(reviews -> {
+            if (!reviews.isEmpty()){
+                double averageRating = reviews.stream()
+                        .mapToInt(ReviewEntity::getRating)
+                        .average()
+                        .orElse(0.0);
+
+                institutionRepository.findById(institutionId).ifPresent(institution -> {
+                    institution.setRating(averageRating);
+                    institutionRepository.save(institution);
+                });
+            } else {
+                institutionRepository.findById(institutionId).ifPresent(institution -> {
+                    institution.setRating(0.0);
+                    institutionRepository.save(institution);
+                });
+            }
+
+        });
+    }
+
 
     public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository){
         this.institutionRepository = institutionRepository;
@@ -38,6 +61,7 @@ public class InstitutionService {
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
         InstitutionEntity institutionEntity = institutionMapper.toEntity(institutionDTO);
         institutionEntity.setCreatedAt(Instant.now());
+        institutionEntity.setRating(0.0);
         InstitutionEntity savedInstitution = institutionRepository.save(institutionEntity);
         return institutionMapper.toDto(savedInstitution);
     }
@@ -79,7 +103,6 @@ public class InstitutionService {
                     existedInstitution.setNewsIds(institutionDTO.getNewsIds());
                     existedInstitution.setLocation(institutionDTO.getLocation());
                     existedInstitution.setContacts(institutionDTO.getContacts());
-                    existedInstitution.setRating(institutionDTO.getRating());
                     existedInstitution.setName(institutionDTO.getName());
                     existedInstitution.setAverageCheck(institutionDTO.getAverageCheck());
                     existedInstitution.setPhotoUrls(institutionDTO.getPhotoUrls());
@@ -103,11 +126,6 @@ public class InstitutionService {
                             case "averageCheck":
                                 if (value instanceof Number) {
                                     institution.setAverageCheck((double) value);
-                                    break;
-                                }
-                            case "rating":
-                                if (value instanceof Number) {
-                                    institution.setRating((double) value);
                                     break;
                                 }
                             case "openAt":
