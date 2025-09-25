@@ -1,5 +1,6 @@
 package com.example.institutionsfinalproject.controller;
 
+import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.InstitutionService;
@@ -27,7 +28,7 @@ public class InstitutionController {
 
     @GetMapping
     public ResponseEntity<ResponseDTO<InstitutionDTO>> getAllInstitution(@RequestParam(defaultValue = "0")int skip, @RequestParam(defaultValue = "10") int limit){
-        ResponseDTO<InstitutionDTO> institutions = institutionService.getAllInstitutions(skip, limit);
+        ResponseDTO<InstitutionDTO> institutions = institutionService.getAllInstitutions(ModerationStatus.APPROVED, skip, limit);
         return new ResponseEntity<>(institutions, HttpStatus.OK);
     }
 

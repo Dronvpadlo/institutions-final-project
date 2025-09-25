@@ -31,7 +31,7 @@ public class InstitutionEntity {
     private double rating;
     private List<String> photoUrls;
     private List<String> tags;
-    private boolean isModerated;
+    private ModerationStatus moderationStatus;
     private Map<String, Long> statistics;
     private List<String> newsIds;
     private List<String> reviewsIds;

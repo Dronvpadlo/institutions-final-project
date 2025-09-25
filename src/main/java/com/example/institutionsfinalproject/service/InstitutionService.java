@@ -1,6 +1,7 @@
 package com.example.institutionsfinalproject.service;
 
 import com.example.institutionsfinalproject.entity.InstitutionEntity;
+import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.ReviewEntity;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
@@ -28,6 +29,16 @@ public class InstitutionService {
     private final NewsRepository newsRepository;
     private final ReviewRepository reviewRepository;
 
+
+
+
+    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository){
+        this.institutionRepository = institutionRepository;
+        this.institutionMapper = institutionMapper;
+        this.newsRepository = newsRepository;
+        this.reviewRepository = reviewRepository;
+    }
+
     public void calculateAndSetRating(String institutionId){
         reviewRepository.findByInstitutionId(institutionId).ifPresent(reviews -> {
             if (!reviews.isEmpty()){
@@ -50,18 +61,11 @@ public class InstitutionService {
         });
     }
 
-
-    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository){
-        this.institutionRepository = institutionRepository;
-        this.institutionMapper = institutionMapper;
-        this.newsRepository = newsRepository;
-        this.reviewRepository = reviewRepository;
-    }
-
     public InstitutionDTO createInstitution(InstitutionDTO institutionDTO) {
         InstitutionEntity institutionEntity = institutionMapper.toEntity(institutionDTO);
         institutionEntity.setCreatedAt(Instant.now());
         institutionEntity.setRating(0.0);
+        institutionEntity.setModerationStatus(ModerationStatus.PENDING);
         InstitutionEntity savedInstitution = institutionRepository.save(institutionEntity);
         return institutionMapper.toDto(savedInstitution);
     }
@@ -72,9 +76,9 @@ public class InstitutionService {
     }
 
 
-    public ResponseDTO<InstitutionDTO> getAllInstitutions(int skip, int limit){
+    public ResponseDTO<InstitutionDTO> getAllInstitutions(ModerationStatus status, int skip, int limit){
         Pageable pageable = PageRequest.of(skip / limit, limit);
-        Page<InstitutionEntity> institutionsPage = institutionRepository.findAll(pageable);
+        Page<InstitutionEntity> institutionsPage = institutionRepository.findAllByModerationStatus(status ,pageable);
 
         List<InstitutionDTO> institutions = institutionsPage.getContent()
                 .stream()
@@ -119,6 +123,7 @@ public class InstitutionService {
                     existedInstitution.setPhotoUrls(institutionDTO.getPhotoUrls());
                     existedInstitution.setReviewsIds(institutionDTO.getReviewsIds());
                     existedInstitution.setTags(institutionDTO.getTags());
+                    existedInstitution.setModerationStatus(ModerationStatus.PENDING);
                     existedInstitution.setOpenAt(LocalTime.parse(institutionDTO.getOpenAt()));
                     existedInstitution.setCloseAt(LocalTime.parse(institutionDTO.getCloseAt()));
                     institutionRepository.save(existedInstitution);
@@ -153,10 +158,22 @@ public class InstitutionService {
                                     throw new IllegalArgumentException("Invalid Local Time value: " + value);
                                 }
                             }
+
                     });
+                    institution.setModerationStatus(ModerationStatus.PENDING);
                     InstitutionEntity updatedInstitution = institutionRepository.save(institution);
                 return institutionMapper.toDto(updatedInstitution);
         });
+    }
+
+    public Optional<InstitutionDTO> changeInstitutionModeratedStatus(String id, ModerationStatus newStatus){
+        return institutionRepository.findById(id)
+                .map(institution -> {
+                    institution.setModerationStatus(newStatus);
+                    institutionRepository.save(institution);
+                    return institutionMapper.toDto(institution);
+                });
+
     }
 
 }

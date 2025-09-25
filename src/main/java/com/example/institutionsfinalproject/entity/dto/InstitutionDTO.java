@@ -1,5 +1,6 @@
 package com.example.institutionsfinalproject.entity.dto;
 
+import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.Specifications;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class InstitutionDTO {
     private String createdAt;
     private double averageCheck;
     private double rating;
+    private ModerationStatus moderationStatus;
     private List<String> photoUrls;
     private List<String> tags;
     private Map<String, Long> statistics;
