@@ -2,6 +2,7 @@ package com.example.institutionsfinalproject.controller;
 
 import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
+import com.example.institutionsfinalproject.entity.dto.InstitutionFilterDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.InstitutionService;
 import org.springframework.http.HttpStatus;
@@ -63,5 +64,15 @@ public class InstitutionController {
         return institutionService.patchInstitution(id, updates)
                 .map(updatesInstitution -> new ResponseEntity<>(updatesInstitution, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<ResponseDTO<InstitutionDTO>> filterInstitution(
+            @RequestBody InstitutionFilterDTO filterDTO,
+            @RequestParam(defaultValue = "0") int skip,
+            @RequestParam(defaultValue = "10") int limit
+            ){
+        ResponseDTO<InstitutionDTO> institutions = institutionService.getFilteredInstitution(filterDTO, skip, limit);
+        return new ResponseEntity<>(institutions, HttpStatus.OK);
     }
 }

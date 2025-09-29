@@ -4,6 +4,7 @@ import com.example.institutionsfinalproject.entity.InstitutionEntity;
 import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.ReviewEntity;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
+import com.example.institutionsfinalproject.entity.dto.InstitutionFilterDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.mapper.InstitutionMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
@@ -12,10 +13,14 @@ import com.example.institutionsfinalproject.repository.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,14 +34,17 @@ public class InstitutionService {
     private final NewsRepository newsRepository;
     private final ReviewRepository reviewRepository;
 
+    private final MongoTemplate mongoTemplate;
 
 
 
-    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository){
+
+    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository, MongoTemplate mongoTemplate){
         this.institutionRepository = institutionRepository;
         this.institutionMapper = institutionMapper;
         this.newsRepository = newsRepository;
         this.reviewRepository = reviewRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public void calculateAndSetRating(String institutionId){
@@ -176,4 +184,52 @@ public class InstitutionService {
 
     }
 
+    public ResponseDTO<InstitutionDTO> getFilteredInstitution(InstitutionFilterDTO filterDTO, int skip, int limit){
+
+
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (filterDTO.getMinRating() != null){
+            criteriaList.add(Criteria.where("rating").gte(filterDTO.getMinRating()));
+        }
+
+        if (filterDTO.getType() != null){
+            criteriaList.add(Criteria.where("type").is(filterDTO.getType()));
+        }
+
+        if (filterDTO.getMinAverageCheck() != null){
+            criteriaList.add(Criteria.where("averageCheck").gte(filterDTO.getMinAverageCheck()));
+        }
+        if (filterDTO.getMaxAverageCheck() != null){
+            criteriaList.add(Criteria.where("averageCheck").lte(filterDTO.getMaxAverageCheck()));
+        }
+        if (filterDTO.getTags() != null && !filterDTO.getTags().isEmpty()){
+            criteriaList.add(Criteria.where("tags").in(filterDTO.getTags()));
+        }
+        if (filterDTO.getHasWifi() != null){
+            criteriaList.add(Criteria.where("specification.hasWifi").in(filterDTO.getHasWifi()));
+        }
+        if (filterDTO.getHasParking() != null){
+            criteriaList.add(Criteria.where("specification.hasParking").in(filterDTO.getHasParking()));
+        }
+        if (filterDTO.getHasLiveMusic() != null){
+            criteriaList.add(Criteria.where("specification.hasLiveMusic").in(filterDTO.getHasLiveMusic()));
+        }
+        criteriaList.add(Criteria.where("moderationStatus").is(ModerationStatus.APPROVED));
+
+        query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
+        long total =mongoTemplate.count(query, InstitutionEntity.class);
+
+        query.skip(skip).limit(limit);
+
+        List<InstitutionEntity> filteredEntities = mongoTemplate.find(query, InstitutionEntity.class);
+
+        List<InstitutionDTO> response = filteredEntities.stream()
+                .map(institutionMapper::toDto)
+                .collect(Collectors.toList());
+
+        return new ResponseDTO<>(response, total, skip, limit);
+    }
 }
