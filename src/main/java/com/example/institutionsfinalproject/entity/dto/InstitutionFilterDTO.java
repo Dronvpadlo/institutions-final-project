@@ -17,4 +17,7 @@ public class InstitutionFilterDTO {
     private Boolean hasWifi;
     private Boolean hasParking;
     private Boolean hasLiveMusic;
+
+    private List<String> sortBy;
+    private List<String> sortDirection;
 }

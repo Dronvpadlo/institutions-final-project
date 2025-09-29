@@ -13,6 +13,7 @@ import com.example.institutionsfinalproject.repository.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -221,6 +219,31 @@ public class InstitutionService {
         query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
 
         long total =mongoTemplate.count(query, InstitutionEntity.class);
+
+        if (filterDTO.getSortBy() != null && filterDTO.getSortDirection() != null && filterDTO.getSortBy().size() == filterDTO.getSortDirection().size() && !filterDTO.getSortDirection().isEmpty()){
+            List<Sort.Order> sortOrder = new ArrayList<>();
+
+            List<String> validSortFields = Arrays.asList("rating", "averageCheck", "createdAt", "name");
+
+            for (int i = 0; i < filterDTO.getSortBy().size(); i++) {
+                String field = filterDTO.getSortBy().get(i);
+                String directionString = filterDTO.getSortDirection().get(i);
+
+                if(validSortFields.contains(field)){
+                    Sort.Direction direction = directionString.equalsIgnoreCase("desc")
+                            ? Sort.Direction.DESC
+                            : Sort.Direction.ASC;
+
+                    sortOrder.add(new Sort.Order(direction, field));
+                }
+            }
+
+            if (!sortOrder.isEmpty()) {
+                query.with(Sort.by(sortOrder));
+            }
+        }
+
+
 
         query.skip(skip).limit(limit);
 
