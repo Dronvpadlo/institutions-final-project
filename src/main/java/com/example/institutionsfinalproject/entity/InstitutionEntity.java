@@ -36,4 +36,5 @@ public class InstitutionEntity {
     private List<String> newsIds;
     private List<String> reviewsIds;
     private Specifications specifications;
+    private String ownerId;
 }

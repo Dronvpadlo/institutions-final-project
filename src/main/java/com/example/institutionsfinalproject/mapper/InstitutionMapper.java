@@ -20,6 +20,7 @@ public interface InstitutionMapper {
     @Mapping(source = "closeAt", target = "closeAt")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "formatDate")
     @Mapping(source = "moderationStatus", target = "moderationStatus")
+    @Mapping(source = "ownerId", target = "ownerId")
     InstitutionDTO toDto (InstitutionEntity institutionEntity);
 
     @Named("formatDate")
@@ -33,5 +34,6 @@ public interface InstitutionMapper {
     @Mapping(source = "openAt", target = "openAt")
     @Mapping(source = "closeAt", target = "closeAt")
     @Mapping(source = "moderationStatus", target = "moderationStatus")
+    @Mapping(source = "ownerId", target = "ownerId")
     InstitutionEntity toEntity (InstitutionDTO institutionDTO);
 }

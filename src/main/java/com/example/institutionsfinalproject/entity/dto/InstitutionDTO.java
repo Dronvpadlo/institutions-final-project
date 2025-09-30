@@ -28,4 +28,5 @@ public class InstitutionDTO {
     private List<String> newsIds;
     private List<String> reviewsIds;
     private Specifications specifications;
+    private String ownerId;
 }

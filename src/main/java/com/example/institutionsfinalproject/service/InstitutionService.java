@@ -10,6 +10,7 @@ import com.example.institutionsfinalproject.mapper.InstitutionMapper;
 import com.example.institutionsfinalproject.repository.InstitutionRepository;
 import com.example.institutionsfinalproject.repository.NewsRepository;
 import com.example.institutionsfinalproject.repository.ReviewRepository;
+import com.example.institutionsfinalproject.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,16 +34,18 @@ public class InstitutionService {
     private final ReviewRepository reviewRepository;
 
     private final MongoTemplate mongoTemplate;
+    private final UserRepository userRepository;
 
 
 
 
-    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository, MongoTemplate mongoTemplate){
+    public InstitutionService(InstitutionRepository institutionRepository, InstitutionMapper institutionMapper, NewsRepository newsRepository, ReviewRepository reviewRepository, MongoTemplate mongoTemplate, UserRepository userRepository){
         this.institutionRepository = institutionRepository;
         this.institutionMapper = institutionMapper;
         this.newsRepository = newsRepository;
         this.reviewRepository = reviewRepository;
         this.mongoTemplate = mongoTemplate;
+        this.userRepository = userRepository;
     }
 
     public void calculateAndSetRating(String institutionId){
@@ -255,4 +258,17 @@ public class InstitutionService {
 
         return new ResponseDTO<>(response, total, skip, limit);
     }
+
+    public Optional<InstitutionDTO> assignNewOwner(String institutionId, String newOwnerId){
+        if(!userRepository.existsById(newOwnerId)){
+            return Optional.empty();
+        }
+        return institutionRepository.findById(institutionId)
+                .map(institution -> {
+                    institution.setOwnerId(newOwnerId);
+                    institutionRepository.save(institution);
+                    return institutionMapper.toDto(institution);
+                });
+    }
+
 }
