@@ -2,12 +2,12 @@ package com.example.institutionsfinalproject.entity.dto;
 
 import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.Specifications;
+import com.example.institutionsfinalproject.entity.Statistics;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +24,7 @@ public class InstitutionDTO {
     private ModerationStatus moderationStatus;
     private List<String> photoUrls;
     private List<String> tags;
-    private Map<String, Long> statistics;
+    private Statistics statistics;
     private List<String> newsIds;
     private List<String> reviewsIds;
     private Specifications specifications;

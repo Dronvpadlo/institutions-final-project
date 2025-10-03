@@ -26,10 +26,13 @@ public class UserService {
     private final UserMapper userMapper;
     private final InstitutionRepository institutionRepository;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, InstitutionRepository institutionRepository){
+    private final InstitutionService institutionService;
+
+    public UserService(UserRepository userRepository, UserMapper userMapper, InstitutionRepository institutionRepository, InstitutionService institutionService){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.institutionRepository = institutionRepository;
+        this.institutionService = institutionService;
     }
 
     public UserDTO createUser(UserRegistrationDTO userRegistrationDTO){
@@ -124,6 +127,7 @@ public class UserService {
                             userFavoriteInstitutionIds.add(institution.getId());
                             user.setFavoriteInstitutionsIds(userFavoriteInstitutionIds);
                             userRepository.save(user);
+                            institutionService.incrementLikes(institutionId);
                         }
                     });
                 return userMapper.toDto(user);
@@ -141,6 +145,7 @@ public class UserService {
                             userFavoriteInstitutionIds.remove(institutionId);
                             user.setFavoriteInstitutionsIds(userFavoriteInstitutionIds);
                             userRepository.save(user);
+                            institutionService.decrementLikes(institutionId);
                         }
                     }
                     return userMapper.toDto(user);

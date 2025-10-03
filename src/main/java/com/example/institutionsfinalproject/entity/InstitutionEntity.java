@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,7 +31,7 @@ public class InstitutionEntity {
     private List<String> photoUrls;
     private List<String> tags;
     private ModerationStatus moderationStatus;
-    private Map<String, Long> statistics;
+    private Statistics statistics = new Statistics();
     private List<String> newsIds;
     private List<String> reviewsIds;
     private Specifications specifications;

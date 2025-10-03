@@ -3,6 +3,7 @@ package com.example.institutionsfinalproject.service;
 import com.example.institutionsfinalproject.entity.InstitutionEntity;
 import com.example.institutionsfinalproject.entity.ModerationStatus;
 import com.example.institutionsfinalproject.entity.ReviewEntity;
+import com.example.institutionsfinalproject.entity.Statistics;
 import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.entity.dto.InstitutionFilterDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
@@ -80,7 +81,9 @@ public class InstitutionService {
     }
 
     public Optional<InstitutionDTO> getInstitutionById(String id){
+        incrementInstitutionViewsAndClicks(id);
         return institutionRepository.findById(id)
+
                 .map(institutionMapper::toDto);
     }
 
@@ -99,7 +102,6 @@ public class InstitutionService {
     public ResponseDTO<InstitutionDTO> getInstitutionsByName(String name, int skip, int limit){
         Pageable pageable = PageRequest.of(skip/limit, limit);
         Page<InstitutionEntity> institutionsPage = institutionRepository.findByNameContainingIgnoreCase(name, pageable);
-
         List<InstitutionDTO> institution = institutionsPage.getContent()
                 .stream()
                 .map(institutionMapper::toDto)
@@ -271,4 +273,44 @@ public class InstitutionService {
                 });
     }
 
+    public void incrementInstitutionViewsAndClicks(String institutionId){
+        institutionRepository.findById(institutionId)
+                .ifPresent(institution -> {
+                    Statistics stats = institution.getStatistics();
+
+                    if (stats == null){
+                        stats = new Statistics();
+                    }
+
+                    stats.setViews(stats.getViews() + 1);
+                    stats.setClicks(stats.getClicks() + 1);
+
+                    institutionRepository.save(institution);
+                });
+    }
+
+    private void updateLikesCount(String institutionId, long delta){
+        institutionRepository.findById(institutionId)
+                .ifPresent(institution -> {
+                    Statistics stats = institution.getStatistics();
+
+                    if (stats == null){
+                        stats = new Statistics();
+                        institution.setStatistics(stats);
+                    }
+
+                    long newLikes = Math.max(0, stats.getLikes() + delta);
+                    stats.setLikes(newLikes);
+
+                    institutionRepository.save(institution);
+                });
+    }
+
+    public void incrementLikes(String institutionId){
+        updateLikesCount(institutionId, 1);
+    }
+
+    public void decrementLikes(String institutionId){
+        updateLikesCount(institutionId, -1);
+    }
 }
