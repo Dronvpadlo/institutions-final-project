@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +20,7 @@ public class NewsEntity {
     private String id;
     private String title;
     private String description;
-    private String date;
+    private LocalTime date;
     private String institutionId;
     private NewsType type;
 }

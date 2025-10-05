@@ -81,7 +81,7 @@ public class InstitutionService {
     }
 
     public Optional<InstitutionDTO> getInstitutionById(String id){
-        incrementInstitutionViewsAndClicks(id);
+        incrementInstitutionViews(id);
         return institutionRepository.findById(id)
 
                 .map(institutionMapper::toDto);
@@ -135,8 +135,8 @@ public class InstitutionService {
                     existedInstitution.setReviewsIds(institutionDTO.getReviewsIds());
                     existedInstitution.setTags(institutionDTO.getTags());
                     existedInstitution.setModerationStatus(ModerationStatus.PENDING);
-                    existedInstitution.setOpenAt(LocalTime.parse(institutionDTO.getOpenAt()));
-                    existedInstitution.setCloseAt(LocalTime.parse(institutionDTO.getCloseAt()));
+                    existedInstitution.setOpenAt(institutionDTO.getOpenAt());
+                    existedInstitution.setCloseAt(institutionDTO.getCloseAt());
                     institutionRepository.save(existedInstitution);
                     return institutionMapper.toDto(existedInstitution);
                 });
@@ -273,7 +273,7 @@ public class InstitutionService {
                 });
     }
 
-    public void incrementInstitutionViewsAndClicks(String institutionId){
+    public void incrementInstitutionViews(String institutionId){
         institutionRepository.findById(institutionId)
                 .ifPresent(institution -> {
                     Statistics stats = institution.getStatistics();
@@ -283,7 +283,6 @@ public class InstitutionService {
                     }
 
                     stats.setViews(stats.getViews() + 1);
-                    stats.setClicks(stats.getClicks() + 1);
 
                     institutionRepository.save(institution);
                 });

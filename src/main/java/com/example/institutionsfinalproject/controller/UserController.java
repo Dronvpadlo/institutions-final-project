@@ -5,6 +5,7 @@ import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.entity.dto.UserDTO;
 import com.example.institutionsfinalproject.entity.dto.UserRegistrationDTO;
 import com.example.institutionsfinalproject.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserRegistrationDTO userRegistrationDTO){
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO){
         UserDTO newUser = userService.createUser(userRegistrationDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
@@ -40,7 +41,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> putUser(@PathVariable String id, @RequestBody UserDTO userDTO){
+    public ResponseEntity<UserDTO> putUser(@PathVariable String id, @Valid @RequestBody UserDTO userDTO){
         return userService.putUser(id, userDTO)
                 .map(updatedUser -> new ResponseEntity<>(updatedUser, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));

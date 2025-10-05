@@ -5,6 +5,7 @@ import com.example.institutionsfinalproject.entity.dto.InstitutionDTO;
 import com.example.institutionsfinalproject.entity.dto.InstitutionFilterDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.InstitutionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class InstitutionController {
     }
 
     @PostMapping
-    public ResponseEntity<InstitutionDTO> createInstitution(@RequestBody InstitutionDTO institutionDTO){
+    public ResponseEntity<InstitutionDTO> createInstitution(@Valid @RequestBody InstitutionDTO institutionDTO){
         InstitutionDTO newInstitution = institutionService.createInstitution(institutionDTO);
         return new ResponseEntity<>(newInstitution, HttpStatus.CREATED);
     }

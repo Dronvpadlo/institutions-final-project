@@ -10,14 +10,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-@Mapper(componentModel = "spring")
+
+@Mapper(componentModel = "spring", uses = {SpecificationsMapper.class, TimeValueMapper.class})
 public interface InstitutionMapper {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
-    @Mapping(source = "openAt", target = "openAt")
-    @Mapping(source = "closeAt", target = "closeAt")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "formatDate")
     @Mapping(source = "moderationStatus", target = "moderationStatus")
     @Mapping(source = "ownerId", target = "ownerId")
@@ -31,9 +30,8 @@ public interface InstitutionMapper {
         return formatter.format(instant);
     }
 
-    @Mapping(source = "openAt", target = "openAt")
-    @Mapping(source = "closeAt", target = "closeAt")
     @Mapping(source = "moderationStatus", target = "moderationStatus")
     @Mapping(source = "ownerId", target = "ownerId")
     InstitutionEntity toEntity (InstitutionDTO institutionDTO);
+
 }

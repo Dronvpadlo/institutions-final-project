@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class NewsService {
                    updates.forEach((key, value) ->{
                        switch (key){
                            case "title": news.setTitle((String) value); break;
-                           case "date": news.setDate((String) value); break;
+                           case "date": news.setDate((LocalTime) value); break;
                            case "description": news.setDescription((String) value); break;
                            case "institutionId": news.setInstitutionId((String) value); break;
                            case "type":
