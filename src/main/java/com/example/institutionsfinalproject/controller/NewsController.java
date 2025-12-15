@@ -1,6 +1,7 @@
 package com.example.institutionsfinalproject.controller;
 
 import com.example.institutionsfinalproject.entity.dto.NewsDTO;
+import com.example.institutionsfinalproject.entity.dto.NewsFilterDTO;
 import com.example.institutionsfinalproject.entity.dto.ResponseDTO;
 import com.example.institutionsfinalproject.service.NewsService;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,12 @@ public class NewsController {
         return newsService.patchNews(id, updates)
                 .map(updatedNews -> new ResponseEntity<>(updatedNews, HttpStatus.OK))
                 .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<ResponseDTO<NewsDTO>> filterNews(@RequestBody NewsFilterDTO filterDTO, @RequestParam(defaultValue = "0") int skip, @RequestParam(defaultValue = "10") int limit){
+        ResponseDTO<NewsDTO> news = newsService.getFilteredNews(filterDTO, skip, limit);
+        return new ResponseEntity<>(news, HttpStatus.OK);
     }
 
 }
