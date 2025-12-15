@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -59,4 +60,9 @@ public class ReviewController {
 
     }
 
+    @GetMapping("/my-reviews/{customerId}")
+    public ResponseEntity<List<ReviewDTO>> getMyReviews(@PathVariable String customerId){
+        List<ReviewDTO> reviews = reviewService.getReviewsByCustomer(customerId);
+        return new ResponseEntity<>(reviews, HttpStatus.OK);
+    }
 }

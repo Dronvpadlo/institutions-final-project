@@ -150,4 +150,11 @@ public class ReviewService {
                     return reviewMapper.toDto(updatedReview);
                 });
     }
+
+    public List<ReviewDTO> getReviewsByCustomer(String customerId){
+        List<ReviewEntity> reviews = reviewRepository.findAllByCustomerId(customerId);
+        return reviews.stream()
+                .map(reviewMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

@@ -14,4 +14,6 @@ public interface ReviewRepository extends MongoRepository<ReviewEntity, String> 
     Page<ReviewEntity> findAll(@NonNull Pageable pageable);
 
     Optional<List<ReviewEntity>> findByInstitutionId(String institutionId);
+
+    List<ReviewEntity> findAllByCustomerId(String customerId);
 }
